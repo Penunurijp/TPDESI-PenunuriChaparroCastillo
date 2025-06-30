@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Recetas</title>
+</head>
+<body>
+    <h1>Recetas</h1>
+    <ul>
+        <li th:each="receta : ${recetas}">
+            <strong th:text="${receta.nombre}">Nombre</strong>: 
+            <span th:text="${receta.descripcion}">Descripción</span>
+            <span th:text="', aporta ' + ${receta.calorias} + ' calorías'"></span>
+        </li>
+    </ul>
+</body>
+</html>

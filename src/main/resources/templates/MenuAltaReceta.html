@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario Prueba</title>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<body>
+    <h2>Alta de Receta</h2>
+
+    <form id="formulario" action="/recetas/guardar" method="post">
+        <label>Nombre:</label><br>
+        <input type="text" id="nombre" name="nombre" /><br><br>
+
+        <label>Descripción:</label><br>
+        <input type="text" id="descripcion" name="descripcion" /><br><br>
+
+        <label>Calorías:</label><br>
+        <input type="number" id="calorias" name="calorias" min="0" /><br><br>
+
+        <button type="submit" id="btnGuardar" disabled>Guardar</button>
+    </form>
+<script th:if="${mensajeExitoso != null}">
+    Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: '[[${mensajeExitoso}]]'
+    });
+</script>
+    <script>
+        const nombre = document.getElementById("nombre");
+        const descripcion = document.getElementById("descripcion");
+        const calorias = document.getElementById("calorias");
+        const btnGuardar = document.getElementById("btnGuardar");
+
+        function validarCampos() {
+            const nombreValido = nombre.value.trim() !== "";
+            const descripcionValida = descripcion.value.trim() !== "";
+            const caloriasValor = parseInt(calorias.value);
+            const caloriasValidas = !isNaN(caloriasValor) && caloriasValor >= 0;
+
+            btnGuardar.disabled = !(nombreValido && descripcionValida && caloriasValidas);
+        }
+
+        nombre.addEventListener("input", validarCampos);
+        descripcion.addEventListener("input", validarCampos);
+        calorias.addEventListener("input", validarCampos);
+    </script>
+</body>
+</html>

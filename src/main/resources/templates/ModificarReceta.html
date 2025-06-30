@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modificar Receta</title>
+    <script>
+        function cargarDatos() {
+            const select = document.getElementById("recetaSelect");
+            const selected = select.options[select.selectedIndex];
+
+            document.getElementById("nombre").value = selected.getAttribute("data-nombre");
+            document.getElementById("descripcion").value = selected.getAttribute("data-descripcion");
+            document.getElementById("calorias").value = selected.getAttribute("data-calorias");
+            document.getElementById("id").value = selected.value;
+        }
+    </script>
+</head>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<body>
+    <h2>Modificar una Receta</h2>
+
+    <label>Seleccioná una receta:</label><br>
+    <select id="recetaSelect" onchange="cargarDatos()">
+        <option value="">-- Seleccionar --</option>
+        <option th:each="receta : ${recetas}"
+                th:value="${receta.id}"
+                th:text="${receta.nombre}"
+                th:attr="data-nombre=${receta.nombre},
+                         data-descripcion=${receta.descripcion},
+                         data-calorias=${receta.calorias}">
+        </option>
+    </select>
+
+    <br><br>
+
+    <form action="/recetas/modificar" method="post">
+        <input type="hidden" id="id" name="id" />
+
+        <label>Nombre:</label><br>
+        <input type="text" id="nombre" name="nombre" /><br><br>
+
+        <label>Descripción:</label><br>
+        <input type="text" id="descripcion" name="descripcion" /><br><br>
+
+        <label>Calorías:</label><br>
+        <input type="number" id="calorias" name="calorias" min="0" /><br><br>
+
+        <button type="submit" id="btnGuardar" disabled>Guardar Cambios</button>
+    </form>
+
+<script th:if="${mensajeExitoso != null}">
+    Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: '[[${mensajeExitoso}]]'
+    });
+</script>
+
+    <script>
+        const nombre = document.getElementById("nombre");
+        const descripcion = document.getElementById("descripcion");
+        const calorias = document.getElementById("calorias");
+        const btnGuardar = document.getElementById("btnGuardar");
+
+        function validarCampos() {
+            const nombreValido = nombre.value.trim() !== "";
+            const descripcionValida = descripcion.value.trim() !== "";
+            const caloriasValor = parseInt(calorias.value);
+            const caloriasValidas = !isNaN(caloriasValor) && caloriasValor >= 0;
+
+            btnGuardar.disabled = !(nombreValido && descripcionValida && caloriasValidas);
+        }
+
+		const recetaSelect = document.getElementById("recetaSelect");
+		recetaSelect.addEventListener("change", validarCampos);
+        nombre.addEventListener("input", validarCampos);
+        descripcion.addEventListener("input", validarCampos);
+        calorias.addEventListener("input", validarCampos);
+    </script>
+
+</body>
+</html>
