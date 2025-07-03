@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${esNueva ? 'Alta de Familia' : 'Modificación de Familia'}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-home me-2"></i>Sistema de Asistencia Social
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <div class="card shadow">
+                    <div class="card-header" th:classappend="${esNueva ? 'bg-success' : 'bg-warning'} + ' text-white'">
+                        <h3 class="mb-0">
+                            <i th:class="${esNueva ? 'fas fa-plus-circle' : 'fas fa-edit'} + ' me-2'"></i>
+                            <span th:text="${esNueva ? 'Alta de Nueva Familia' : 'Modificación de Familia'}"></span>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Mensajes de estado -->
+                        <div th:if="${mensaje}" class="alert alert-dismissible fade show mb-4" 
+                             th:classappend="${tipoMensaje == 'success' ? 'alert-success' : 'alert-danger'}">
+                            <span th:text="${mensaje}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <!-- Criterios de aceptación -->
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Criterios de Aceptación:</h6>
+                            <ul class="mb-0">
+                                <li><strong>Fecha de alta:</strong> Por defecto fecha actual, no puede ser anterior a hoy</li>
+                                <li><strong>Nombre Familia:</strong> Usualmente apellido y nombre del sostén (Ej: Ramona Pérez e hijos)</li>
+                                <li><strong>Integrantes:</strong> DNI único, todos los datos requeridos</li>
+                                <li><strong>Ocupación:</strong> Lista de selección (desempleado, empleado, estudiante, ama de casa, otro)</li>
+                                <li th:if="${!esNueva}"><strong>Modificación:</strong> Todos los datos excepto nro de familia</li>
+                                <li th:if="${!esNueva}"><strong>Integrantes:</strong> Solo se pueden eliminar (lógicamente) o agregar nuevos</li>
+                            </ul>
+                        </div>
+                        
+                        <form id="familiaForm" th:action="@{/familias/guardar}" th:object="${familia}" method="post">
+                            <input type="hidden" th:field="*{nroFamilia}">
+                            
+                            <!-- Datos de la familia -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="text-primary">
+                                        <i class="fas fa-users me-2"></i>Datos de la Familia
+                                    </h5>
+                                    <hr>
+                                </div>
+                                
+                                <!-- Número de familia (solo lectura en modificación) -->
+                                <div class="col-md-6 mb-3" th:unless="${esNueva}">
+                                    <label class="form-label">Número de Familia</label>
+                                    <input type="text" class="form-control" th:value="${familia.nroFamilia}" readonly>
+                                    <small class="form-text text-muted">Campo de solo lectura</small>
+                                </div>
+                                
+                                <!-- Nombre de la familia -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="nombre" class="form-label">
+                                        Nombre de la Familia <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" th:field="*{nombre}" 
+                                           th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                                           placeholder="Ej: Ramona Pérez e hijos">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" 
+                                         th:errors="*{nombre}"></div>
+                                </div>
+                                
+                                <!-- Fecha de alta -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="fechaAlta" class="form-label">
+                                        Fecha de Alta <span class="text-danger">*</span>
+                                    </label>
+								
+
+									<input type="date" class="form-control"
+									       name="fechaAlta"
+									       th:value="${#temporals.format(familia.fechaAlta, 'yyyy-MM-dd')}"
+									       th:classappend="${#fields.hasErrors('fechaAlta')} ? 'is-invalid' : ''"
+									       th:min="${esNueva ? #temporals.format(#temporals.createNow(), 'yyyy-MM-dd') : ''}"
+									       required>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('fechaAlta')}" 
+                                         th:errors="*{fechaAlta}"></div>
+                                    <small class="form-text text-muted" th:if="${esNueva}">No puede ser anterior a la fecha actual</small>
+                                    
+                                </div>
+                            </div>
+                            
+                            <!-- Integrantes existentes (solo en modificación) -->
+                            <div class="row mb-4" th:unless="${esNueva}">
+                                <div class="col-12">
+                                    <h5 class="text-warning">
+                                        <i class="fas fa-user-friends me-2"></i>Integrantes Actuales
+                                        <small class="text-muted">(Solo eliminación lógica disponible)</small>
+                                    </h5>
+                                    <hr>
+                                </div>
+                                
+                                <div class="col-12" th:if="${!#lists.isEmpty(integrantes)}">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>DNI</th>
+                                                    <th>Apellido</th>
+                                                    <th>Nombre</th>
+                                                    <th>F. Nacimiento</th>
+                                                    <th>Ocupación</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="integrante : ${integrantes}">
+                                                    <td><span class="badge bg-secondary" th:text="${integrante.dni}"></span></td>
+                                                    <td th:text="${integrante.apellido}"></td>
+                                                    <td th:text="${integrante.nombre}"></td>
+                                                    <td th:text="${#temporals.format(integrante.fechaNacimiento, 'dd/MM/yyyy')}"></td>
+                                                    <td><span class="badge bg-info" th:text="${integrante.ocupacion.descripcion}"></span></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-danger" 
+                                                                data-bs-toggle="modal" 
+                                                                th:data-bs-target="'#modalEliminarIntegrante' + ${integrante.dni}">
+                                                            <i class="fas fa-user-times"></i> Eliminar
+                                                        </button>
+                                                        
+                                                        <!-- Modal de confirmación para eliminar integrante -->
+                                                        <div class="modal fade" th:id="'modalEliminarIntegrante' + ${integrante.dni}" tabindex="-1">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header bg-danger text-white">
+                                                                        <h5 class="modal-title">
+                                                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                            Confirmar Eliminación de Integrante
+                                                                        </h5>
+                                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <div class="text-center mb-3">
+                                                                            <i class="fas fa-user-times fa-3x text-danger mb-3"></i>
+                                                                            <h6>¿Está seguro de eliminar al integrante?</h6>
+                                                                            <p class="fw-bold" th:text="${integrante.nombreCompleto}"></p>
+                                                                        </div>
+                                                                        <div class="alert alert-warning">
+                                                                            <i class="fas fa-info-circle me-2"></i>
+                                                                            <strong>Eliminación lógica:</strong> El integrante no aparecerá en los listados pero se mantendrá el registro histórico.
+                                                                        </div>
+                                                                        <div class="alert alert-info">
+                                                                            <i class="fas fa-calendar me-2"></i>
+                                                                            <strong>Fecha de eliminación:</strong> Se registrará automáticamente como <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}"></span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                                            <i class="fas fa-times me-1"></i>Cancelar
+                                                                        </button>
+                                                                        <form th:action="@{/asistidos/{dni}/eliminar(dni=${integrante.dni})}" 
+                                                                              method="post" style="display: inline;">
+                                                                            <input type="hidden" name="nroFamilia" th:value="${familia.nroFamilia}">
+                                                                            <button type="submit" class="btn btn-danger">
+                                                                                <i class="fas fa-user-times me-1"></i>Confirmar Eliminación
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <!-- Botón para agregar más integrantes -->
+                                    <div class="text-center mt-3">
+                                        <a th:href="@{/asistidos/familia/{nroFamilia}/nuevo(nroFamilia=${familia.nroFamilia})}" 
+                                           class="btn btn-success">
+                                            <i class="fas fa-user-plus me-1"></i>Agregar Nuevo Integrante
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-12" th:if="${#lists.isEmpty(integrantes)}">
+                                    <div class="alert alert-info text-center">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        No hay integrantes activos. 
+                                        <a th:href="@{/asistidos/familia/{nroFamilia}/nuevo(nroFamilia=${familia.nroFamilia})}" 
+                                           class="btn btn-sm btn-success ms-2">
+                                            <i class="fas fa-user-plus me-1"></i>Agregar Integrante
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Lista de integrantes (solo para nueva familia) -->
+                            <div class="row mb-4" th:if="${esNueva}">
+                                <div class="col-12">
+                                    <h5 class="text-primary">
+                                        <i class="fas fa-user-friends me-2"></i>Lista de Integrantes
+                                        <small class="text-muted">(Mínimo 1 integrante requerido)</small>
+                                    </h5>
+                                    <hr>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <div id="integrantes-container">
+                                        <!-- Integrante template inicial -->
+                                        <div class="integrante-row border rounded p-3 mb-3" style="background-color: #f8f9fa;">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0 text-primary">
+                                                    <i class="fas fa-user me-1"></i>Integrante #<span class="integrante-numero">1</span>
+                                                </h6>
+                                                <button type="button" class="btn btn-danger btn-sm remove-integrante" style="display: none;">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </button>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-2">
+                                                    <label class="form-label">DNI <span class="text-danger">*</span></label>
+                                                    <input type="number" name="integranteDni" class="form-control" 
+                                                           placeholder="12345678" min="1" required>
+                                                    <small class="form-text text-muted">Único</small>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Apellido <span class="text-danger">*</span></label>
+                                                    <input type="text" name="integranteApellido" class="form-control" 
+                                                           placeholder="Pérez" required>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                                                    <input type="text" name="integranteNombre" class="form-control" 
+                                                           placeholder="Juan" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Fecha Nacimiento <span class="text-danger">*</span></label>
+                                                    <input type="date" name="integranteFechaNacimiento" class="form-control" 
+                                                           th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label class="form-label">Ocupación <span class="text-danger">*</span></label>
+                                                    <select name="integranteOcupacion" class="form-select" required>
+                                                        <option value="">Seleccionar...</option>
+                                                        <option th:each="ocupacion : ${ocupaciones}" 
+                                                                th:value="${ocupacion.name()}" 
+                                                                th:text="${ocupacion.descripcion}">
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <button type="button" id="add-integrante" class="btn btn-outline-primary">
+                                            <i class="fas fa-plus me-1"></i>Agregar Otro Integrante
+                                        </button>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Criterios: DNI único, todos los datos obligatorios
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Botones de acción -->
+                            <div class="d-flex justify-content-between pt-3">
+                                <a href="/familias" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i>Volver al Listado
+                                </a>
+                                <button type="button" class="btn" 
+                                        th:classappend="${esNueva ? 'btn-success' : 'btn-warning'}"
+                                        data-bs-toggle="modal" 
+                                        th:data-bs-target="${esNueva ? '#modalConfirmarAlta' : '#modalConfirmarModificacion'}">
+                                    <i th:class="${esNueva ? 'fas fa-save' : 'fas fa-edit'} + ' me-1'"></i>
+                                    <span th:text="${esNueva ? 'Registrar Familia' : 'Guardar Cambios'}"></span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación para Alta de Familia -->
+    <div class="modal fade" id="modalConfirmarAlta" tabindex="-1" th:if="${esNueva}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Confirmar Alta de Familia
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-users fa-3x text-success mb-3"></i>
+                        <h6>¿Está seguro de registrar esta nueva familia?</h6>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Se registrará:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>La familia con sus datos básicos</li>
+                            <li>Todos los integrantes especificados</li>
+                            <li>Se asignará un número de familia automáticamente</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="confirmarOperacion()">
+                        <i class="fas fa-save me-1"></i>Confirmar Registro
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación para Modificación de Familia -->
+    <div class="modal fade" id="modalConfirmarModificacion" tabindex="-1" th:unless="${esNueva}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>
+                        Confirmar Modificación de Familia
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-edit fa-3x text-warning mb-3"></i>
+                        <h6>¿Está seguro de guardar los cambios?</h6>
+                        <p class="text-muted">Familia: <strong th:text="${familia.nombre}"></strong></p>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Se modificarán:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Los datos básicos de la familia</li>
+                            <li>Los integrantes no se modifican desde aquí</li>
+                            <li>Los cambios serán permanentes</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="confirmarOperacion()">
+                        <i class="fas fa-edit me-1"></i>Confirmar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Función para confirmar operación
+        function confirmarOperacion() {
+            document.getElementById('familiaForm').submit();
+        }
+        
+        // Script específico para nueva familia
+        if (document.getElementById('add-integrante')) {
+            let integranteCounter = 1;
+            
+            // Establecer fecha actual por defecto
+            document.addEventListener('DOMContentLoaded', function() {
+                const fechaAltaInput = document.querySelector('input[name="fechaAlta"]');
+                if (fechaAltaInput && !fechaAltaInput.value) {
+                    const today = new Date().toISOString().split('T')[0];
+                    fechaAltaInput.value = today;
+                }
+            });
+            
+            // Agregar integrante
+            document.getElementById('add-integrante').addEventListener('click', function() {
+                integranteCounter++;
+                const container = document.getElementById('integrantes-container');
+                const template = container.querySelector('.integrante-row').cloneNode(true);
+                
+                // Actualizar número del integrante
+                template.querySelector('.integrante-numero').textContent = integranteCounter;
+                
+                // Limpiar valores del template
+                template.querySelectorAll('input, select').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Mostrar botón eliminar
+                template.querySelector('.remove-integrante').style.display = 'inline-block';
+                
+                container.appendChild(template);
+                updateRemoveButtons();
+            });
+            
+            // Remover integrante
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-integrante') || 
+                    e.target.parentElement.classList.contains('remove-integrante')) {
+                    const container = document.getElementById('integrantes-container');
+                    if (container.children.length > 1) {
+                        e.target.closest('.integrante-row').remove();
+                        updateIntegranteNumbers();
+                        updateRemoveButtons();
+                    } else {
+                        alert('Debe haber al menos un integrante en la familia');
+                    }
+                }
+            });
+            
+            // Actualizar numeración de integrantes
+            function updateIntegranteNumbers() {
+                const integrantes = document.querySelectorAll('.integrante-row');
+                integrantes.forEach((integrante, index) => {
+                    integrante.querySelector('.integrante-numero').textContent = index + 1;
+                });
+                integranteCounter = integrantes.length;
+            }
+            
+            // Actualizar visibilidad de botones eliminar
+            function updateRemoveButtons() {
+                const integrantes = document.querySelectorAll('.integrante-row');
+                integrantes.forEach((integrante, index) => {
+                    const removeBtn = integrante.querySelector('.remove-integrante');
+                    if (integrantes.length > 1) {
+                        removeBtn.style.display = 'inline-block';
+                    } else {
+                        removeBtn.style.display = 'none';
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+

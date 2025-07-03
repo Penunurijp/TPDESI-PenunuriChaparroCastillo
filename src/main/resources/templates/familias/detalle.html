@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Familia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-home me-2"></i>Sistema de Asistencia Social
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-users text-primary me-2"></i>
+                        Detalle de Familia
+                    </h2>
+                    <div>
+                        <a th:href="@{/familias/{id}/editar(id=${familia.nroFamilia})}" 
+                           class="btn btn-warning me-2">
+                            <i class="fas fa-edit me-1"></i>Modificar
+                        </a>
+                        <a href="/familias" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Volver
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información de la familia -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Información General
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-bold text-muted">Nro. Familia:</td>
+                                <td>
+                                    <span class="badge bg-primary fs-6" th:text="${familia.nroFamilia}"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Nombre:</td>
+                                <td>
+                                    <strong th:text="${familia.nombre}"></strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Fecha de Alta:</td>
+                                <td th:text="${#temporals.format(familia.fechaAlta, 'dd/MM/yyyy')}"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Fecha Última Asistencia:</td>
+                                <td th:text="${familia.fechaUltimaAsistencia != null ? #temporals.format(familia.fechaUltimaAsistencia, 'dd/MM/yyyy') : 'Sin asistencia'}"></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Estado:</td>
+                                <td>
+                                    <span class="badge bg-success">Activa</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold text-muted">Integrantes Activos:</td>
+                                <td>
+                                    <span class="badge bg-info" th:text="${cantidadIntegrantes}"></span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Integrantes activos -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-friends me-2"></i>
+                            Integrantes Activos
+                        </h5>
+                        <div>
+                            <small class="badge bg-light text-dark me-2">
+                                Total: <span th:text="${cantidadIntegrantes}"></span> integrantes
+                            </small>
+                            <a th:href="@{/asistidos/familia/{nroFamilia}/nuevo(nroFamilia=${familia.nroFamilia})}" 
+                               class="btn btn-sm btn-light">
+                                <i class="fas fa-plus"></i> Agregar Integrante
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive" th:if="${!#lists.isEmpty(integrantes)}">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>DNI</th>
+                                        <th>Apellido</th>
+                                        <th>Nombre</th>
+                                        <th>Fecha Nacimiento</th>
+                                        <th>Ocupación</th>
+                                        <th>Fecha Registro</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="integrante : ${integrantes}">
+                                        <td>
+                                            <span class="badge bg-secondary" th:text="${integrante.dni}"></span>
+                                        </td>
+                                        <td th:text="${integrante.apellido}"></td>
+                                        <td th:text="${integrante.nombre}"></td>
+                                        <td th:text="${#temporals.format(integrante.fechaNacimiento, 'dd/MM/yyyy')}"></td>
+                                        <td>
+                                            <span class="badge bg-light text-dark" th:text="${integrante.ocupacion.descripcion}"></span>
+                                        </td>
+                                        <td th:text="${#temporals.format(integrante.fechaRegistro, 'dd/MM/yyyy')}"></td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    title="Eliminar integrante"
+                                                    data-bs-toggle="modal" 
+                                                    th:data-bs-target="'#modalEliminarIntegrante' + ${integrante.dni}">
+                                                <i class="fas fa-user-times"></i>
+                                            </button>
+                                            
+                                            <!-- Modal de confirmación para eliminar integrante -->
+                                            <div class="modal fade" th:id="'modalEliminarIntegrante' + ${integrante.dni}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Confirmar Eliminación de Integrante</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>¿Está seguro de eliminar al integrante <strong th:text="${integrante.nombreCompleto}"></strong>?</p>
+                                                            <div class="alert alert-warning">
+                                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                                <strong>Eliminación lógica:</strong> El integrante no aparecerá en los listados pero se mantendrá el registro histórico.
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                            <form th:action="@{/personas/{dni}/eliminar(dni=${integrante.dni})}" 
+                                                                  method="post" style="display: inline;">
+                                                                <input type="hidden" name="nroFamilia" th:value="${familia.nroFamilia}">
+                                                                <button type="submit" class="btn btn-danger">
+                                                                    <i class="fas fa-user-times me-1"></i>Eliminar
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div th:if="${#lists.isEmpty(integrantes)}" class="text-center py-4">
+                            <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No hay integrantes activos registrados</p>
+                            <a th:href="@{/asistidos/familia/{nroFamilia}/nuevo(nroFamilia=${familia.nroFamilia})}" 
+   class="btn btn-sm btn-success ms-2">
+    <i class="fas fa-user-plus me-1"></i>Agregar Integrante
+</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+
+

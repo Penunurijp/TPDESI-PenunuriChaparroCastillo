@@ -1,0 +1,55 @@
+<!-- layout.html -->
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, content)">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${title}">Sistema de Asistencia</title>
+
+    <!-- Bootstrap CSS desde CDN para evitar problemas de ruta -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font Awesome CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .main-content {
+            min-height: 100vh;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .card-stats {
+            border-left: 4px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-home me-2"></i>Sistema de Asistencia - ABMC Familias
+            </a>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="container main-content">
+        <!-- Mensajes -->
+        <div th:if="${mensaje}" class="alert alert-dismissible fade show"
+             th:classappend="${tipoMensaje == 'success'} ? 'alert-success' : 'alert-danger'">
+            <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+
+        <!-- Aquí se inserta el contenido -->
+        <div th:replace="${content}">[Contenido]</div>
+    </main>
+
+    <!-- Bootstrap JS Bundle con Popper (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

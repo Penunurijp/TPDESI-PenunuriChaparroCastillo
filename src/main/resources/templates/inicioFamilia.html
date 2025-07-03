@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Sistema de Asistencia Social</title>
+</head>
+<body>
+<section>
+    <div class="container mt-5">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h1 class="fw-bold text-primary mb-2">
+                    <i class="fas fa-tachometer-alt me-2"></i>Sistema de Asistencia Social
+                </h1>
+                <p class="lead text-muted">Gestión de Familias Asistidas</p>
+            </div>
+        </div>
+
+        <div class="row mb-5 justify-content-center">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-3 text-center">
+                    <div class="card-body">
+                        <h3 class="text-primary fw-bold" th:text="${totalFamilias}">0</h3>
+                        <p class="text-muted mb-0">Familias Activas</p>
+                        <i class="fas fa-users fa-2x mt-2 text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body text-center">
+                        <i class="fas fa-plus-circle fa-3x text-success mb-3"></i>
+                        <h5 class="card-title fw-semibold">Alta de Familia</h5>
+                        <p class="text-muted">Registrar nueva familia e integrantes asociados</p>
+                        <a th:href="@{/familias/nueva}" class="btn btn-success px-4 rounded-pill">
+                            <i class="fas fa-plus me-1"></i>Registrar
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body text-center">
+                        <i class="fas fa-list fa-3x text-info mb-3"></i>
+                        <h5 class="card-title fw-semibold">Listado de Familias</h5>
+                        <p class="text-muted">Consultar y administrar familias registradas</p>
+                        <a th:href="@{/familias}" class="btn btn-info text-white px-4 rounded-pill">
+                            <i class="fas fa-list me-1"></i>Ver Lista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
+
+
