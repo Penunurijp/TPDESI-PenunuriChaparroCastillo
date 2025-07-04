@@ -1,1 +1,21 @@
-<!-- Listado de Preparaciones -->
+<table>
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Receta</th>
+            <th>Raciones</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="p : ${preparaciones}">
+            <td th:text="${p.fecha}"></td>
+            <td th:text="${p.receta.nombre}"></td>
+            <td th:text="${p.cantidadRaciones}"></td>
+            <td>
+                <a th:href="@{/preparaciones/editar/{id}(id=${p.id})}">Editar</a>
+                <a th:href="@{/preparaciones/eliminar/{id}(id=${p.id})}">Eliminar</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
