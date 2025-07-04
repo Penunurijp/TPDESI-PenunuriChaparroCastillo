@@ -24,32 +24,32 @@ public class RecetaController {
 
 	@GetMapping("/inicio")
 	private String mostrarInicio() {
-		return "MenuRecetas";
+		return "recetas/MenuRecetas";
 	}
 
 	@GetMapping("/listar")
 	private String listarRecetas(Model model) {
 		List<Receta> recetas = recetaService.listarRecetas();
 		model.addAttribute("recetas", recetas);
-		return "Receta";
+		return "recetas/Receta";
 	}
 
 	@GetMapping("/nueva")
 	private String listarRecestas() {
-		return "MenuAltaReceta";
+		return "recetas/MenuAltaReceta";
 	}
 
 	@PostMapping("/guardar")
 	private String guardarReceta(@ModelAttribute Receta receta, Model model) {
 		recetaService.save(receta);
 		model.addAttribute("mensajeExitoso", "Receta guardada con éxito");
-		return "MenuAltaReceta";
+		return "recetas/MenuAltaReceta";
 	}
 
 	@GetMapping("/modificar")
 	private String listarRecetasModificar(Model model) {
 		model.addAttribute("recetas", recetaService.listarRecetas());
-		return "ModificarReceta";
+		return "recetas/ModificarReceta";
 	}
 
 	@PostMapping("/modificar")
@@ -62,7 +62,7 @@ public class RecetaController {
 	@GetMapping("/eliminar")
 	private String listarRecetasEliminar(Model model) {
 		model.addAttribute("recetas", recetaService.listarRecetas());
-		return "EliminarReceta";
+		return "recetas/EliminarReceta";
 	}
 
 	@PostMapping("/eliminar")

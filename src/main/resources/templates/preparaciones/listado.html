@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Listado de Preparaciones</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>Preparaciones Registradas</h1>
+
+<a href="/preparaciones/nueva">+ Nueva Preparación</a>
+
+<div th:if="${error}" style="color: red; margin-top: 10px;">
+    <p th:text="${error}"></p>
+</div>
+
+<form method="get" action="#" style="margin-top: 20px;">
+    <label>Filtrar por receta:</label>
+    <input type="text" name="nombre" placeholder="Nombre de receta" />
+    <label>Fecha:</label>
+    <input type="date" name="fecha" />
+    <button type="submit">Filtrar</button>
+</form>
+
+<br>
+
+<table border="1" cellpadding="5">
+    <thead>
+    <tr>
+        <th>Fecha</th>
+        <th>Receta</th>
+        <th>Raciones</th>
+        <th>Calorías por plato</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="p : ${preparaciones}">
+        <td th:text="${p.fecha}"></td>
+        <td th:text="${p.receta.nombre}"></td>
+        <td th:text="${p.cantidadRaciones}"></td>
+        <td th:text="${p.getReceta().getCalorias()}"></td>
+        <td>
+            <a th:href="@{/preparaciones/editar/{id}(id=${p.id})}">Editar</a> |
+            <a th:href="@{/preparaciones/eliminar/{id}(id=${p.id})}"
+               onclick="return confirm('¿Está seguro que desea eliminar esta preparación?');">Eliminar</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
