@@ -1,11 +1,9 @@
 package com.utn.tp.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table (name = "receta")
 public class Receta {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
