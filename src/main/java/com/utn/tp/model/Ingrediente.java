@@ -13,7 +13,10 @@ public class Ingrediente {
 
     private double stock;
 
-    // Getters y setters
+    private boolean eliminado = false;
+
+    // Getters y Setters
+
     public Long getId() {
         return id;
     }
@@ -37,5 +40,19 @@ public class Ingrediente {
     public void setStock(double stock) {
         this.stock = stock;
     }
+
+    public boolean isEliminado() {
+        return eliminado;
+    }
+
+    public void setEliminado(boolean eliminado) {
+        this.eliminado = eliminado;
+    }
+
+    @Override
+    public String toString() {
+        return this.nombre;
+    }
 }
+
 

@@ -1,8 +1,25 @@
-<form th:action="@{/preparaciones/modificar}" th:object="${preparacion}" method="post">
-    <input type="hidden" th:field="*{id}" />
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Editar Preparación</title>
+</head>
+<body>
+    <h1>Editar Fecha de Preparación</h1>
 
-    <label>Modificar Fecha:</label>
-    <input type="date" th:field="*{fecha}" />
+    <div th:if="${error}" style="color: red;">
+        <p th:text="${error}"></p>
+    </div>
 
-    <button type="submit">Guardar cambios</button>
-</form>
+    <form th:action="@{/preparaciones/modificar}" th:object="${preparacion}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <label>Modificar Fecha:</label>
+        <input type="date" th:field="*{fecha}" required />
+
+        <br><br>
+
+        <button type="submit">Guardar cambios</button>
+        <a href="/preparaciones">Cancelar</a>
+    </form>
+</body>
+</html>

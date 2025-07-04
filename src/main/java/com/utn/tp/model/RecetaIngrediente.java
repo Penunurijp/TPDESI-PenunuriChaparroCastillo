@@ -15,9 +15,14 @@ public class RecetaIngrediente {
     @ManyToOne
     private Ingrediente ingrediente;
 
-    private double cantidad; // gramos o unidades usadas
+    private double cantidad;
 
-    // Getters y setters
+    private int calorias;
+
+    private boolean eliminado = false;
+
+    // Getters y Setters
+
     public Long getId() {
         return id;
     }
@@ -49,4 +54,21 @@ public class RecetaIngrediente {
     public void setCantidad(double cantidad) {
         this.cantidad = cantidad;
     }
+
+    public int getCalorias() {
+        return calorias;
+    }
+
+    public void setCalorias(int calorias) {
+        this.calorias = calorias;
+    }
+
+    public boolean isEliminado() {
+        return eliminado;
+    }
+
+    public void setEliminado(boolean eliminado) {
+        this.eliminado = eliminado;
+    }
 }
+
