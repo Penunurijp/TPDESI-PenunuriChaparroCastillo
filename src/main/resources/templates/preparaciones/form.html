@@ -1,1 +1,14 @@
-<!-- Formulario Preparacion -->
+<form th:action="@{/preparaciones/guardar}" th:object="${preparacion}" method="post">
+    <label>Fecha:</label>
+    <input type="date" th:field="*{fecha}" />
+
+    <label>Receta:</label>
+    <select th:field="*{receta}">
+        <option th:each="r : ${recetas}" th:value="${r}" th:text="${r.nombre}"></option>
+    </select>
+
+    <label>Cantidad de raciones:</label>
+    <input type="number" th:field="*{cantidadRaciones}" />
+
+    <button type="submit">Guardar</button>
+</form>

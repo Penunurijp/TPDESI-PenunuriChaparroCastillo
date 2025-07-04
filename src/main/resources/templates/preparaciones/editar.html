@@ -1,1 +1,8 @@
-<!-- Editar Preparacion -->
+<form th:action="@{/preparaciones/modificar}" th:object="${preparacion}" method="post">
+    <input type="hidden" th:field="*{id}" />
+
+    <label>Modificar Fecha:</label>
+    <input type="date" th:field="*{fecha}" />
+
+    <button type="submit">Guardar cambios</button>
+</form>
