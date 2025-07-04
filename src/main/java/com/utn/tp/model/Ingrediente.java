@@ -3,13 +3,15 @@ package com.utn.tp.model;
 import jakarta.persistence.*;
 
 @Entity
-public class Receta {
+public class Ingrediente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nombre;
+
+    private double stock;
 
     // Getters y setters
     public Long getId() {
@@ -26,6 +28,14 @@ public class Receta {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public double getStock() {
+        return stock;
+    }
+
+    public void setStock(double stock) {
+        this.stock = stock;
     }
 }
 
