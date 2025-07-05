@@ -13,6 +13,8 @@ public class Ingrediente {
 
     private double stock;
 
+    private int calorias;
+
     // Getters y setters
     public Long getId() {
         return id;
@@ -36,5 +38,13 @@ public class Ingrediente {
 
     public void setStock(double stock) {
         this.stock = stock;
+    }
+
+    public int getCalorias() {
+        return calorias;
+    }
+
+    public void setCalorias(int calorias) {
+        this.calorias = calorias;
     }
 }

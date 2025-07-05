@@ -45,7 +45,8 @@
         <label>Calorías:</label><br>
         <input type="number" id="calorias" disabled name="calorias" min="0" /><br><br>
 
-        <button type="submit" id="btnEliminar" disabled>Eliminar</button>
+        <button type="submit" id="btnEliminar" onclick="return confirm('¿Seguro que querés eliminar esta receta?');">
+        disabled >Eliminar</button>
     </form>
 
 <script th:if="${mensajeExitoso != null}">

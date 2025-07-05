@@ -5,13 +5,41 @@
     <title>Lista de Recetas</title>
 </head>
 <body>
-    <h1>Recetas</h1>
-    <ul>
-        <li th:each="receta : ${recetas}">
-            <strong th:text="${receta.nombre}">Nombre</strong>: 
-            <span th:text="${receta.descripcion}">Descripción</span>
-            <span th:text="', aporta ' + ${receta.calorias} + ' calorías'"></span>
-        </li>
-    </ul>
+<h1>Recetas Activas</h1>
+
+<!-- Filtro -->
+<form th:action="@{/recetas/filtrar}" method="get">
+    <label>Nombre:</label>
+    <input type="text" name="nombre" placeholder="Buscar por nombre"/>
+
+    <label>Calorías entre:</label>
+    <input type="number" name="minCalorias" min="0" placeholder="Mínimo"/>
+    <input type="number" name="maxCalorias" min="0" placeholder="Máximo"/>
+
+    <button type="submit">Filtrar</button>
+</form>
+
+<br>
+
+<!-- Listado -->
+<table border="1">
+    <thead>
+    <tr>
+        <th>Nombre</th>
+        <th>Calorías Totales</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="receta : ${recetas}">
+        <td th:text="${receta.nombre}">Nombre</td>
+        <td th:text="${receta.calorias}">Calorías</td>
+        <td>
+            <a th:href="@{/recetas/modificar}">Modificar</a> |
+            <a th:href="@{/recetas/eliminar}">Eliminar</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
 </body>
 </html>

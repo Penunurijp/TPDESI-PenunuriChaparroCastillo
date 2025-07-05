@@ -2,25 +2,43 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Formulario Prueba</title>
+    <title>Alta de Receta</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <body>
-    <h2>Alta de Receta</h2>
+<h2>Alta de Receta</h2>
 
-    <form id="formulario" action="/recetas/guardar" method="post">
-        <label>Nombre:</label><br>
-        <input type="text" id="nombre" name="nombre" /><br><br>
+<select id="plantillaIngredientes" style="display:none;">
+    <option th:each="i : ${ingredientes}" th:value="${i.id}" th:text="${i.nombre}">Ingrediente</option>
+</select>
 
-        <label>Descripción:</label><br>
-        <input type="text" id="descripcion" name="descripcion" /><br><br>
+<form id="formulario" action="/recetas/guardar" method="post">
+    <label>Nombre:</label><br>
+    <input type="text" id="nombre" name="nombre" /><br><br>
 
-        <label>Calorías:</label><br>
-        <input type="number" id="calorias" name="calorias" min="0" /><br><br>
+    <label>Descripción:</label><br>
+    <input type="text" id="descripcion" name="descripcion" /><br><br>
 
-        <button type="submit" id="btnGuardar" disabled>Guardar</button>
-    </form>
+    <h3>Ingredientes</h3>
+    <div id="ingredientesContainer">
+        <div class="ingrediente-entry">
+            <label>Ingrediente:</label>
+            <select name="ingredientes[0].ingredienteId" required>
+                <option th:each="i : ${ingredientes}" th:value="${i.id}" th:text="${i.nombre}">Ingrediente</option>
+            </select>
+            <label>Cantidad:</label>
+            <input type="number" step="0.01" min="0" name="ingredientes[0].cantidad" required>
+            <label>Calorías:</label>
+            <input type="number" min="0" name="ingredientes[0].calorias" required>
+            <button type="button" onclick="eliminarIngrediente(this)">❌</button>
+            <br><br>
+        </div>
+    </div>
+
+    <button type="button" id="btnAgregarIngrediente">➕ Agregar otro ingrediente</button><br><br>
+    <button type="submit" id="btnGuardar" disabled>Guardar</button>
+</form>
+
 <script th:if="${mensajeExitoso != null}">
     Swal.fire({
         icon: 'success',
@@ -28,24 +46,79 @@
         text: '[[${mensajeExitoso}]]'
     });
 </script>
-    <script>
-        const nombre = document.getElementById("nombre");
-        const descripcion = document.getElementById("descripcion");
-        const calorias = document.getElementById("calorias");
+<script th:if="${mensajeError != null}">
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: '[[${mensajeError}]]'
+    });
+</script>
+
+<script>
+    let index = 1; // porque ya hay uno en el HTML
+
+    function agregarIngrediente() {
+        const container = document.getElementById("ingredientesContainer");
+        const optionsHTML = document.getElementById("plantillaIngredientes").innerHTML;
+
+        const div = document.createElement("div");
+        div.className = "ingrediente-entry";
+        div.innerHTML = `
+            <label>Ingrediente:</label>
+            <select name="ingredientes[${index}].ingredienteId" required>
+                ${optionsHTML}
+            </select>
+            <label>Cantidad:</label>
+            <input type="number" step="0.01" min="0" name="ingredientes[${index}].cantidad" required>
+            <label>Calorías:</label>
+            <input type="number" min="0" name="ingredientes[${index}].calorias" required>
+            <button type="button" onclick="eliminarIngrediente(this)">❌</button>
+            <br><br>
+        `;
+        container.appendChild(div);
+        index++;
+        validarCampos();
+    }
+
+    function eliminarIngrediente(boton) {
+        boton.parentElement.remove();
+        validarCampos();
+    }
+
+    function validarCampos() {
+        const nombre = document.getElementById("nombre").value.trim();
+        const descripcion = document.getElementById("descripcion").value.trim();
         const btnGuardar = document.getElementById("btnGuardar");
 
-        function validarCampos() {
-            const nombreValido = nombre.value.trim() !== "";
-            const descripcionValida = descripcion.value.trim() !== "";
-            const caloriasValor = parseInt(calorias.value);
-            const caloriasValidas = !isNaN(caloriasValor) && caloriasValor >= 0;
+        let camposValidos = nombre !== "" && descripcion !== "";
 
-            btnGuardar.disabled = !(nombreValido && descripcionValida && caloriasValidas);
+        const ingredientes = document.querySelectorAll("#ingredientesContainer .ingrediente-entry");
+        if (ingredientes.length === 0) {
+            camposValidos = false;
         }
 
-        nombre.addEventListener("input", validarCampos);
-        descripcion.addEventListener("input", validarCampos);
-        calorias.addEventListener("input", validarCampos);
-    </script>
+        ingredientes.forEach(div => {
+            const select = div.querySelector("select");
+            const cantidad = div.querySelector("input[name*='cantidad']");
+            const cal = div.querySelector("input[name*='calorias']");
+
+            if (!select.value ||
+                !cantidad.value || parseFloat(cantidad.value) <= 0 ||
+                !cal.value || parseInt(cal.value) < 0) {
+                camposValidos = false;
+            }
+        });
+
+        btnGuardar.disabled = !camposValidos;
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("nombre").addEventListener("input", validarCampos);
+        document.getElementById("descripcion").addEventListener("input", validarCampos);
+        document.getElementById("btnAgregarIngrediente").addEventListener("click", agregarIngrediente);
+        document.getElementById("ingredientesContainer").addEventListener("input", validarCampos);
+        validarCampos();
+    });
+</script>
 </body>
 </html>
